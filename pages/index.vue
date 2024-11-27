@@ -17,6 +17,7 @@
   import Navbar from '../components/navbar/index.vue';
   import PanelTitle from '../components/panel-title/index.vue';
   import PanelText from '../components/panel-text/index.vue';
+  import NewDeposit from '../components/new-deposit/index.vue';
 
   const orange = '#FF6A00';
   const tab = ref('main');
@@ -94,7 +95,7 @@
     {
       deposit_name: 'Depósito 5',
       limit: 60,
-      is_active: true,
+      is_active: false,
       address_id: 1,
       cep: "68628-582",
       address: "Rua Rubens Braga",
@@ -105,7 +106,7 @@
       latitude: -2.9760732,
       longitude: -47.3656384
     }
-  ]
+  ];
 </script>
 
 <template>
@@ -118,7 +119,7 @@
             bg-color="white"
           >
             <v-tab 
-              v-for="(t, index) in tabs"
+              v-for="(t) in tabs"
               class="text-capitalize text-subtitle-1 font-weight-bold"
               :value="t.value"
               :color="orange"
@@ -139,26 +140,18 @@
 
                 <v-tabs-window-item value="deposits">
                   <div class="d-flex flex-lg-row flex-column">
-                      <v-col 
-                        class="pa-0 lg:mb-0 mb-10"
-                        cols="lg:6 md:8 sm:12"
+                      <v-col
+                        cols="lg:6 md:6 sm:12"
                       >
                         <div class="area-map">
 
                         </div>
                       </v-col>
-                      <v-col 
-                        class="d-flex md:justify-center sm:justify-center justify-end pa-0"
-                        cols="lg:6 md:8 sm:12"
+                      <v-col
+                        cols="lg:6 md:6 sm:12"
                       >
                         <div class="deposits">
-                          <v-btn 
-                            class="btn-new rounded-lg text-capitalize font-weight-black mb-6"
-                            :color="orange"
-                            prepend-icon="mdi-plus"
-                          >
-                            Novo depósito
-                          </v-btn>
+                          <NewDeposit />
                           <v-expansion-panels
                             :readonly="readonly"
                             multiple
@@ -215,7 +208,6 @@
   }
 
   .area-map {
-    max-width: 560px;
     height: 556px;
     border-radius: 10px;
     background-color: aqua;
@@ -224,7 +216,6 @@
   .deposits {
     display: flex;
     flex-direction: column;
-    width: 560px;
     padding-left: 2px;
     padding-right: 2px;
     padding-bottom: 2px;

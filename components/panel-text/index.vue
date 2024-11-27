@@ -1,4 +1,6 @@
 <script setup lang="ts">
+    import EditDeposit from '../edit-deposit/index.vue';
+
     interface Deposit {
         address_id: number,
         cep: string,
@@ -23,14 +25,7 @@
         <p class="text-subtitle-2 font-weight-regular">{{ props.country }}</p>
         <div class="d-flex justify-center w-100">
             <div class="d-flex flex-row justify-space-between mt-4 pb-1 w-50 md:w-100 sm:w-100">
-                <v-btn 
-                    class="btn-expanded rounded-lg text-capitalize font-weight-black"
-                    color="#4CAF50"
-                    prepend-icon="mdi-pencil"
-                    elevation="0"
-                >
-                    Editar
-                </v-btn>
+                <EditDeposit />
                 <v-btn 
                     class="btn-expanded rounded-lg text-capitalize font-weight-black"
                     color="#FF1616"
