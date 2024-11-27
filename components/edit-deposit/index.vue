@@ -1,48 +1,75 @@
 <script setup lang="ts">
+    interface Deposit {
+        deposit_name: string;
+        limit: number;
+        is_active: boolean;
+        address_id: number;
+        cep: string;
+        address: string;
+        neighborhood: string;
+        city: string;
+        uf: string;
+        country: string;
+        latitude: number;
+        longitude: number;
+    }
+
+    const props = defineProps<Deposit>()
+
     const dialog = ref(false);
 
     const orange = '#FF6A00';
 
-    const newDeposit = ref([
+    const editDeposit = ref([
        {
         label: 'Nome*',
         type: 'text',
-        value: ''
+        value: props.deposit_name
        },
        {
         label: 'Limite*',
         type: 'text',
-        value: ''
+        value: String(props.limit)
        },
        {
         label: 'Endereço*',
         type: 'text',
-        value: ''
+        value: props.address
        },
        {
         label: 'CEP*',
         type: 'text',
-        value: ''
+        value: props.cep
        },
        {
         label: 'Cidade*',
         type: 'select',
-        value: ''
+        value: props.city
        },
        {
         label: 'Estado*',
         type: 'select',
-        value: ''
+        value: props.uf
        },
        {
         label: 'País*',
         type: 'text',
-        value: ''
+        value: props.country
        },
        {
         label: 'Ativo*',
         type: 'select',
-        value: ''
+        value: String(props.is_active)
+       },
+       {
+        label: 'Latitude*',
+        type: 'text',
+        value: String(props.latitude) || ''
+       },
+       {
+        label: 'Longitude*',
+        type: 'text',
+        value: String(props.longitude) || ''
        },
     ]);
 </script>
@@ -73,7 +100,7 @@
                         cols="12"
                         md="6"
                         sm="6"
-                        v-for="(d) in newDeposit"
+                        v-for="(d) in editDeposit"
                     >
                         <v-text-field
                             v-if="d.type === 'text'"

@@ -3,39 +3,34 @@
 
     const orange = '#FF6A00';
 
-    const newDeposit = ref([
+    const newProduct = ref([
        {
         label: 'Nome*',
         type: 'text',
         value: ''
        },
        {
-        label: 'Limite*',
+        label: 'Imagem*',
+        type: 'file',
+        value: null
+       },
+       {
+        label: 'Descrição*',
         type: 'text',
         value: ''
        },
        {
-        label: 'Endereço*',
-        type: 'text',
-        value: ''
-       },
-       {
-        label: 'CEP*',
-        type: 'text',
-        value: ''
-       },
-       {
-        label: 'Cidade*',
+        label: 'Categoria*',
         type: 'select',
         value: ''
        },
        {
-        label: 'Estado*',
+        label: 'Depósito*',
         type: 'select',
         value: ''
        },
        {
-        label: 'País*',
+        label: 'Preço*',
         type: 'text',
         value: ''
        },
@@ -49,17 +44,17 @@
     >
         <template v-slot:activator="{ props: activatorProps }">
             <v-btn 
-                class="btn-new rounded-lg text-capitalize font-weight-black mb-6 w-lg-50 w-md-25 w-sm-100"
+                class="btn-new rounded-lg text-capitalize font-weight-black mb-6 w-lg-25 w-md-25 w-sm-100"
                 :color="orange"
                 prepend-icon="mdi-plus"
                 v-bind="activatorProps"
             >
-                Novo depósito
+                Novo produto
             </v-btn>
         </template>
 
         <v-card
-            title="Novo Depósito"
+            title="Novo Produto"
         >
             <v-card-text>
                 <v-row dense>
@@ -67,7 +62,7 @@
                         cols="12"
                         md="6"
                         sm="6"
-                        v-for="(d) in newDeposit"
+                        v-for="(d) in newProduct"
                     >
                         <v-text-field
                             v-if="d.type === 'text'"
@@ -75,6 +70,12 @@
                             v-model="d.value"
                             required
                         ></v-text-field>
+                        <v-file-input
+                            v-else-if="d.type === 'file'"
+                            accept="image/*"
+                            label="Imagem"
+                            required
+                        ></v-file-input>
                         <v-select
                             v-else
                             :items="['0-17', '18-29', '30-54', '54+']"

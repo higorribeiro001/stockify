@@ -1,43 +1,61 @@
 <script setup lang="ts">
+    interface Product {
+        name: string;
+        blob_image: string;
+        category_id : number;
+        category : string;
+        is_active: boolean;
+        is_purchased : boolean;
+        description: string;
+        deposit_id: number;
+        deposit: string;
+        price: number;
+    }
+
+    const props = defineProps<Product>()
+
     const dialog = ref(false);
 
-    const orange = '#FF6A00';
-
-    const newDeposit = ref([
-       {
+    const product = ref([
+    {
         label: 'Nome*',
         type: 'text',
-        value: ''
+        value: props.name
        },
        {
-        label: 'Limite*',
+        label: 'Imagem*',
+        type: 'file',
+        value: null
+       },
+       {
+        label: 'Descrição*',
         type: 'text',
-        value: ''
+        value: props.description
        },
        {
-        label: 'Endereço*',
-        type: 'text',
-        value: ''
-       },
-       {
-        label: 'CEP*',
-        type: 'text',
-        value: ''
-       },
-       {
-        label: 'Cidade*',
+        label: 'Categoria*',
         type: 'select',
-        value: ''
+        value: props.category
        },
        {
-        label: 'Estado*',
+        label: 'Ativo*',
         type: 'select',
-        value: ''
+        value: String(props.is_active)
        },
        {
-        label: 'País*',
+        label: 'Vendido*',
+        type: 'select',
+        value: String(props.is_purchased)
+       },
+       {
+        label: 'Depósito*',
+        type: 'select',
+        value: props.deposit
+       },
+       {
+        label: 'Preço*',
         type: 'text',
-        value: ''
+        value: String(props.price)
        },
     ]);
 </script>
@@ -49,17 +67,18 @@
     >
         <template v-slot:activator="{ props: activatorProps }">
             <v-btn 
-                class="btn-new rounded-lg text-capitalize font-weight-black mb-6 w-lg-50 w-md-25 w-sm-100"
-                :color="orange"
-                prepend-icon="mdi-plus"
+                class="btn-expanded rounded-lg text-capitalize font-weight-black"
+                color="#4CAF50"
+                prepend-icon="mdi-pencil"
+                elevation="0"
                 v-bind="activatorProps"
             >
-                Novo depósito
+                Editar
             </v-btn>
         </template>
 
         <v-card
-            title="Novo Depósito"
+            title="Editar Depósito"
         >
             <v-card-text>
                 <v-row dense>
@@ -67,7 +86,7 @@
                         cols="12"
                         md="6"
                         sm="6"
-                        v-for="(d) in newDeposit"
+                        v-for="(d) in product"
                     >
                         <v-text-field
                             v-if="d.type === 'text'"
@@ -75,6 +94,12 @@
                             v-model="d.value"
                             required
                         ></v-text-field>
+                        <v-file-input
+                            v-else-if="d.type === 'file'"
+                            accept="image/*"
+                            label="Imagem"
+                            required
+                        ></v-file-input>
                         <v-select
                             v-else
                             :items="['0-17', '18-29', '30-54', '54+']"
@@ -95,9 +120,8 @@
                     color="#FF6A00"
                     @click="dialog = false"
                 >
-                    Cadastrar
+                    Salvar
                 </v-btn>
-
                 <v-btn
                     class="rounded-lg text-uppercase font-weight-black mr-5"
                     @click="dialog = false"
