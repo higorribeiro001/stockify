@@ -1,19 +1,4 @@
 <script setup lang="ts">
-  interface Deposit {
-    deposit_name: string;
-    limit: number;
-    is_active: boolean;
-    address_id: number;
-    cep: string;
-    address: string;
-    neighborhood: string;
-    city: string;
-    uf: string;
-    country: string;
-    latitude: number;
-    longitude: number;
-  }
-
   interface Product {
       name: string;
       blob_image: string;
@@ -35,6 +20,7 @@
   import NewDeposit from '../components/new-deposit/index.vue';
   import NewProduct from '../components/new-product/index.vue';
   import imageExample from '../public/assets/image-example.svg';
+import { getDeposits } from '~/services/api/deposit';
 
   const orange = '#FF6A00';
   const tab = ref('main');
@@ -60,148 +46,7 @@
     760,
   ];
   const readonly = ref(false);
-  const deposits: Deposit[] = [
-    {
-      deposit_name: 'Depósito 1',
-      limit: 60,
-      is_active: true,
-      address_id: 1,
-      cep: "68628-582",
-      address: "Rua Rubens Braga",
-      neighborhood: "JK",
-      city: "Paragominas",
-      uf: "PA",
-      country: "Brasil",
-      latitude: -2.9760732,
-      longitude: -47.3656384
-    },
-    {
-      deposit_name: 'Depósito 2',
-      limit: 60,
-      is_active: true,
-      address_id: 1,
-      cep: "68628-582",
-      address: "Rua Rubens Braga",
-      neighborhood: "JK",
-      city: "Paragominas",
-      uf: "PA",
-      country: "Brasil",
-      latitude: -2.9760732,
-      longitude: -47.3656384
-    },
-    {
-      deposit_name: 'Depósito 3',
-      limit: 60,
-      is_active: true,
-      address_id: 1,
-      cep: "68628-582",
-      address: "Rua Rubens Braga",
-      neighborhood: "JK",
-      city: "Paragominas",
-      uf: "PA",
-      country: "Brasil",
-      latitude: -2.9760732,
-      longitude: -47.3656384
-    },
-    {
-      deposit_name: 'Depósito 4',
-      limit: 60,
-      is_active: true,
-      address_id: 1,
-      cep: "68628-582",
-      address: "Rua Rubens Braga",
-      neighborhood: "JK",
-      city: "Paragominas",
-      uf: "PA",
-      country: "Brasil",
-      latitude: -2.9760732,
-      longitude: -47.3656384
-    },
-    {
-      deposit_name: 'Depósito 5',
-      limit: 60,
-      is_active: false,
-      address_id: 1,
-      cep: "68628-582",
-      address: "Rua Rubens Braga",
-      neighborhood: "JK",
-      city: "Paragominas",
-      uf: "PA",
-      country: "Brasil",
-      latitude: -2.9760732,
-      longitude: -47.3656384
-    },
-    {
-      deposit_name: 'Depósito 1',
-      limit: 60,
-      is_active: true,
-      address_id: 1,
-      cep: "68628-582",
-      address: "Rua Rubens Braga",
-      neighborhood: "JK",
-      city: "Paragominas",
-      uf: "PA",
-      country: "Brasil",
-      latitude: -2.9760732,
-      longitude: -47.3656384
-    },
-    {
-      deposit_name: 'Depósito 2',
-      limit: 60,
-      is_active: true,
-      address_id: 1,
-      cep: "68628-582",
-      address: "Rua Rubens Braga",
-      neighborhood: "JK",
-      city: "Paragominas",
-      uf: "PA",
-      country: "Brasil",
-      latitude: -2.9760732,
-      longitude: -47.3656384
-    },
-    {
-      deposit_name: 'Depósito 3',
-      limit: 60,
-      is_active: true,
-      address_id: 1,
-      cep: "68628-582",
-      address: "Rua Rubens Braga",
-      neighborhood: "JK",
-      city: "Paragominas",
-      uf: "PA",
-      country: "Brasil",
-      latitude: -2.9760732,
-      longitude: -47.3656384
-    },
-    {
-      deposit_name: 'Depósito 4',
-      limit: 60,
-      is_active: true,
-      address_id: 1,
-      cep: "68628-582",
-      address: "Rua Rubens Braga",
-      neighborhood: "JK",
-      city: "Paragominas",
-      uf: "PA",
-      country: "Brasil",
-      latitude: -2.9760732,
-      longitude: -47.3656384
-    },
-    {
-      deposit_name: 'Depósito 5',
-      limit: 60,
-      is_active: false,
-      address_id: 1,
-      cep: "68628-582",
-      address: "Rua Rubens Braga",
-      neighborhood: "JK",
-      city: "Paragominas",
-      uf: "PA",
-      country: "Brasil",
-      latitude: -2.9760732,
-      longitude: -47.3656384
-    }
-  ];
+  const deposits = ref<DepositComplete[]>([]);
 
   const products: Product[] = [
     {
@@ -337,6 +182,16 @@
       price: 40.00
     },
   ];
+
+  const listDeposits = async () => {
+      deposits.value = await getDeposits();
+  };
+
+  onMounted(() => {
+      listDeposits();
+  });
+
+  
 </script>
 
 <template>
@@ -417,33 +272,40 @@
                       cols="lg:6 md:6 sm:12"
                     >
                       <div class="deposits">
-                        <NewDeposit />
+                        <NewDeposit 
+                          :load-deposits="listDeposits"
+                        />
                         <v-expansion-panels
                           :readonly="readonly"
                           multiple
                         >
-                          <v-expansion-panel v-for="(deposit, index) in deposits">
+                          <v-expansion-panel 
+                            :key="index"
+                            v-for="(deposit, index) in deposits" 
+                          >
                             <v-expansion-panel-title>
                               <PanelTitleDeposit 
-                                :deposit_name="deposit.deposit_name"
-                                :is_active="deposit.is_active"
+                                :depositName="deposit.depositName"
+                                :isActive="deposit.isActive"
                                 :limit="deposit.limit"
                               />
                             </v-expansion-panel-title>
                             <v-expansion-panel-text>
                               <PanelTextDeposit 
-                                :deposit_name="deposit.deposit_name"
-                                :is_active="deposit.is_active"
+                                :id="deposit.id"
+                                :depositName="deposit.depositName"
+                                :isActive="deposit.isActive"
                                 :limit="deposit.limit"
-                                :address_id="deposit.address_id"
-                                :address="deposit.address"
-                                :cep="deposit.cep"
-                                :neighborhood="deposit.neighborhood"
-                                :city="deposit.city"
-                                :uf="deposit.uf"
-                                :country="deposit.country"
-                                :latitude="deposit.latitude"
-                                :longitude="deposit.longitude"
+                                :addressId="deposit.addressId"
+                                :addressValue="deposit.address.addressValue"
+                                :cep="deposit.address.cep"
+                                :neighborhood="deposit.address.neighborhood"
+                                :city="deposit.address.city"
+                                :uf="deposit.address.uf"
+                                :country="deposit.address.country"
+                                :latitude="deposit.address.latitude"
+                                :longitude="deposit.address.longitude"
+                                :load-deposits="listDeposits"
                               />
                             </v-expansion-panel-text>
                           </v-expansion-panel>

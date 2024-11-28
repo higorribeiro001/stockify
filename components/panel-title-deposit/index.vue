@@ -1,8 +1,8 @@
 <script setup lang="ts">
     interface Deposit {
-        deposit_name: string,
+        depositName: string,
         limit: number,
-        is_active: boolean,
+        isActive: boolean,
     }
 
     import ballActive from '../public/assets/ball-active.svg';
@@ -16,7 +16,7 @@
         <h2 
             class="title-deposit text-subtitle-1 font-weight-bold"
         >
-            {{ props.deposit_name }}
+            {{ props.depositName }}
         </h2>
         <div class="d-flex flex-row justify-start align-center ga-1">
             <div class="ball">
@@ -24,10 +24,10 @@
                     class="ball"
                     :width="9"
                     :height="9"
-                    :src="props.is_active ? ballActive : ballInactive"
+                    :src="props.isActive ? ballActive : ballInactive"
                 />
             </div>
-            <h3 class="text-subtitle-2 font-weight-medium">{{ props.is_active ? 'ativo' : 'inativo' }}</h3>
+            <h3 class="text-subtitle-2 font-weight-medium">{{ props.isActive ? 'ativo' : 'inativo' }}</h3>
         </div>
         <div class="d-flex flex-row ga-2">
             <h3 class="text-subtitle-2 font-weight-medium">Limite:</h3>

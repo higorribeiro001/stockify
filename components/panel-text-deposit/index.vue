@@ -3,18 +3,20 @@
     import RemoveDeposit from '../remove-deposit/index.vue';
 
     interface Deposit {
-        deposit_name: string;
+        id: number;
+        depositName: string;
         limit: number;
-        is_active: boolean;
-        address_id: number;
+        isActive: boolean;
+        addressId: number;
         cep: string;
-        address: string;
+        addressValue: string;
         neighborhood: string;
         city: string;
         uf: string;
         country: string;
         latitude: number;
         longitude: number;
+        loadDeposits: () => void;
     }
 
     const props = defineProps<Deposit>()
@@ -25,18 +27,19 @@
         <v-divider class="mb-2"></v-divider>
         <h3 class="text-subtitle-2 font-weight-bold mb-1">Endereço</h3>
         <p class="text-subtitle-2 font-weight-regular">{{ props.cep }}</p>
-        <p class="text-subtitle-2 font-weight-regular">{{ props.address }}</p>
+        <p class="text-subtitle-2 font-weight-regular">{{ props.addressValue }}</p>
         <p class="text-subtitle-2 font-weight-regular">{{ props.neighborhood }}</p>
         <p class="text-subtitle-2 font-weight-regular">{{ props.city }}</p>
         <p class="text-subtitle-2 font-weight-regular">{{ props.country }}</p>
         <div class="d-flex justify-center w-100">
             <div class="d-flex flex-row ga-2 justify-space-between mt-4 pb-1">
                 <EditDeposit 
-                    :deposit_name="props.deposit_name"
+                    :id="props.id"
+                    :depositName="props.depositName"
                     :limit="props.limit"
-                    :is_active="props.is_active"
-                    :address_id="props.address_id"
-                    :address="props.address"
+                    :isActive="props.isActive"
+                    :addressId="props.addressId"
+                    :addressValue="props.addressValue"
                     :cep="props.cep"
                     :neighborhood="props.neighborhood"
                     :city="props.city"
@@ -44,8 +47,13 @@
                     :country="props.country"
                     :latitude="props.latitude"
                     :longitude="props.longitude"
+                    :loadDeposits="props.loadDeposits"
                 />
-                <RemoveDeposit />
+                <RemoveDeposit 
+                    :id="props.id"
+                    :addressId="props.addressId"
+                    :loadDeposits="props.loadDeposits"
+                />
             </div>
         </div>
     </div>

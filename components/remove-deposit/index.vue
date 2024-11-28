@@ -1,8 +1,55 @@
 <script setup lang="ts">
-    const dialog = ref(false);
+import { deleteAddress } from '~/services/api/address';
+import { deleteDeposit } from '~/services/api/deposit';
+
+interface DeleteDeposit {
+    id: number;
+    addressId: number;
+    loadDeposits: () => void;
+}
+
+const props = defineProps<DeleteDeposit>();
+
+const dialog = ref(false);
+
+const snackbar = ref({
+    active: false,
+    text: ''
+});
+
+const removeDeposit = async () => {
+    const response = await deleteAddress(props.addressId);
+
+    if (response.status === 204) {
+        const responseDeposit = await deleteDeposit(props.id);
+
+        if (responseDeposit.status === 204) {
+            snackbar.value.active = true;
+            snackbar.value.text = 'Depósito removido com sucesso.';
+            props.loadDeposits();
+            dialog.value = false;
+        } 
+    } 
+}
 </script>
 
 <template>
+    <v-snackbar
+      v-model="snackbar.active"
+      multi-line
+    >
+      {{ snackbar.text }}
+
+      <template v-slot:actions>
+        <v-btn
+          color="red"
+          variant="text"
+          @click="snackbar.active = false"
+        >
+          Fechar
+        </v-btn>
+      </template>
+    </v-snackbar>
     <v-dialog
         v-model="dialog"
         max-width="600"
@@ -30,7 +77,7 @@
                 <v-btn
                     class="rounded-lg text-uppercase font-weight-black ml-5"
                     color="#FF6A00"
-                    @click="dialog = false"
+                    @click="removeDeposit()"
                 >
                     Excluir
                 </v-btn>
