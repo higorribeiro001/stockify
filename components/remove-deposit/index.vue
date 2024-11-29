@@ -6,6 +6,7 @@ interface DeleteDeposit {
     id: number;
     addressId: number;
     loadDeposits: () => void;
+    loadProducts: () => void;
 }
 
 const props = defineProps<DeleteDeposit>();
@@ -27,6 +28,7 @@ const removeDeposit = async () => {
             snackbar.value.active = true;
             snackbar.value.text = 'Depósito removido com sucesso.';
             props.loadDeposits();
+            props.loadProducts();
             dialog.value = false;
         } 
     } 

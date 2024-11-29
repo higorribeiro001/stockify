@@ -14,6 +14,7 @@ interface Deposit {
     latitude: number;
     longitude: number;
     loadDeposits: () => void;
+    loadProducts: () => void;
 }
 
 const props = defineProps<Deposit>()
@@ -50,6 +51,7 @@ const props = defineProps<Deposit>()
                     :id="props.id"
                     :addressId="props.addressId"
                     :loadDeposits="props.loadDeposits"
+                    :load-products="props.loadProducts"
                 />
             </div>
         </div>

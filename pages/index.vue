@@ -219,6 +219,7 @@ onMounted(() => {
                                 :latitude="deposit.address.latitude"
                                 :longitude="deposit.address.longitude"
                                 :load-deposits="listDeposits"
+                                :load-products="listProducts"
                               />
                             </v-expansion-panel-text>
                           </v-expansion-panel>
