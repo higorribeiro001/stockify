@@ -2,7 +2,6 @@
 interface NewCategory {
     loadCategories: () => void;
 }
-import Loading from '../loading/index.vue';
 import { setCategory } from '~/services/api/category';
 
 const props = defineProps<NewCategory>();

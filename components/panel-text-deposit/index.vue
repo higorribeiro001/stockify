@@ -1,25 +1,22 @@
 <script setup lang="ts">
-    import EditDeposit from '../edit-deposit/index.vue';
-    import RemoveDeposit from '../remove-deposit/index.vue';
+interface Deposit {
+    id: number;
+    depositName: string;
+    limit: number;
+    isActive: boolean;
+    addressId: number;
+    cep: string;
+    addressValue: string;
+    neighborhood: string;
+    city: string;
+    uf: string;
+    country: string;
+    latitude: number;
+    longitude: number;
+    loadDeposits: () => void;
+}
 
-    interface Deposit {
-        id: number;
-        depositName: string;
-        limit: number;
-        isActive: boolean;
-        addressId: number;
-        cep: string;
-        addressValue: string;
-        neighborhood: string;
-        city: string;
-        uf: string;
-        country: string;
-        latitude: number;
-        longitude: number;
-        loadDeposits: () => void;
-    }
-
-    const props = defineProps<Deposit>()
+const props = defineProps<Deposit>()
 </script>
 
 <template>

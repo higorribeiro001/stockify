@@ -1,28 +1,59 @@
 <script setup lang="ts">
-    import logo from "../public/assets/Stockify.svg"
+import logo from "../public/assets/Stockify.svg"
 
-    const items = [
-        {
-            prependIcon: 'mdi-clock-outline',
-            title: 'recipe with chicken',
-        },
-        {
-            prependIcon: 'mdi-clock-outline',
-            title: 'best hiking trails near me',
-        },
-        {
-            prependIcon: 'mdi-clock-outline',
-            title: 'how to learn a new language',
-        },
-        {
-            prependIcon: 'mdi-clock-outline',
-            title: 'DIY home organization ideas',
-        },
-        {
-            prependIcon: 'mdi-clock-outline',
-            title: 'latest fashion trends',
-        },
-    ];
+interface Item {
+    prependIcon: string,
+    title: string,
+};
+
+interface Navbar {
+    deposits: DepositComplete[];
+    products: Product[];
+    filterDeposits: (value: string) => void;
+    filterProducts: (value: string) => void;
+    loadProducts: () => void;
+    loadDeposits: () => void;
+}
+
+const props = defineProps<Navbar>()
+
+const items = ref<Item[]>([]);
+const icon = 'mdi-clock-outline';
+
+const search = ref('');
+
+const loadListItems = () => {
+    for (var d of props.deposits) {
+        items.value.push(
+            {
+                prependIcon: icon,
+                title: d.depositName
+            }
+        )
+    }
+
+    for (var p of props.products) {
+        items.value.push(
+            {
+                prependIcon: icon,
+                title: p.name
+            }
+        )
+    }
+}
+
+onMounted(() => {
+    loadListItems();
+})
+
+watch(() => search.value, (newSearch) => {
+    if (newSearch === null) {
+        props.loadDeposits();
+        props.loadProducts();
+    } 
+    props.filterDeposits(newSearch);
+    props.filterProducts(newSearch);
+})
 </script>
 
 <template>
@@ -41,6 +72,7 @@
                 </v-col>
             </div>
             <v-autocomplete
+                v-model="search"
                 :items="items"
                 density="comfortable"
                 menu-icon=""
@@ -51,6 +83,8 @@
                 variant="solo"
                 item-props
                 rounded
+                item-text="title"    
+                item-value="title"
             ></v-autocomplete>
         </v-row>
         <v-divider class="mb-8"></v-divider>

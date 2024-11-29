@@ -6,7 +6,6 @@ interface NewDeposit {
 import { setAddress } from '~/services/api/address';
 import { setDeposit } from '~/services/api/deposit';
 import { getAddress, getCities, getLocation, getUf } from '~/services/api/locations';
-import Loading from '../loading/index.vue';
 
 const props = defineProps<NewDeposit>();
 

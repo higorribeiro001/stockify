@@ -305,6 +305,9 @@ watch(() => editDeposit.value[5].value, (cep) => {
         </v-btn>
       </template>
     </v-snackbar>
+    <Loading 
+        :active="isLoading"
+    />
     <v-dialog
         v-model="dialog"
         max-width="600"

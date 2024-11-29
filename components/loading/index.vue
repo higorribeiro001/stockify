@@ -1,8 +1,8 @@
 <script setup lang="ts">
-    interface Loading {active: boolean}
+interface Loading {active: boolean}
 
-    const orange = '#FF6A00';
-    const props = defineProps<Loading>()
+const orange = '#FF6A00';
+const props = defineProps<Loading>()
 </script>
 
 <template>

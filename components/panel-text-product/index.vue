@@ -1,31 +1,28 @@
 <script setup lang="ts">
-    import EditProduct from '../edit-product/index.vue';
-    import RemoveProduct from '../remove-product/index.vue';
-
-    interface Product {
-        id: number;
-        name: string;
-        blobImage: string;
-        isActive: boolean;
-        isPurchased : boolean;
-        categoryId: number;
-        category: {
-            nameCategory: string;
-        };
-        description: string;
-        depositId: number;
-        deposit: {
-            depositName: string;
-            limit: number;
-        }
-        price: number;
-        deposits: Deposit[];
-        categories: Category[];
-        itemsProducts: ItemProduct[];
-        loadProducts: () => void;
+interface Product {
+    id: number;
+    name: string;
+    blobImage: string;
+    isActive: boolean;
+    isPurchased : boolean;
+    categoryId: number;
+    category: {
+        nameCategory: string;
+    };
+    description: string;
+    depositId: number;
+    deposit: {
+        depositName: string;
+        limit: number;
     }
+    price: number;
+    deposits: Deposit[];
+    categories: Category[];
+    itemsProducts: ItemProduct[];
+    loadProducts: () => void;
+}
 
-    const props = defineProps<Product>()
+const props = defineProps<Product>()
 </script>
 
 <template>

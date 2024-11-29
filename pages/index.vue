@@ -1,11 +1,4 @@
 <script setup lang="ts">
-import Navbar from '../components/navbar/index.vue';
-import PanelTitleDeposit from '../components/panel-title-deposit/index.vue';
-import PanelTextDeposit from '../components/panel-text-deposit/index.vue';
-import PanelTitleProduct from '../components/panel-title-product/index.vue';
-import PanelTextProduct from '../components/panel-text-product/index.vue';
-import NewDeposit from '../components/new-deposit/index.vue';
-import NewProduct from '../components/new-product/index.vue';
 import { getDeposits } from '~/services/api/deposit';
 import { getCategories } from '~/services/api/category';
 import { getProducts } from '~/services/api/product';
@@ -24,15 +17,7 @@ const tabs = [{
   text: 'Produtos',
   value: 'products'
 }];
-const value = [
-  423,
-  446,
-  675,
-  510,
-  590,
-  610,
-  760,
-];
+const value = ref<Array<number>>([]);
 const readonly = ref(false);
 const deposits = ref<DepositComplete[]>([]);
 const categories = ref<Category[]>([]);
@@ -77,20 +62,74 @@ const listProducts = async () => {
     products.value = await getProducts();
 };
 
+const defineValues = async () => {
+  var prod: Product[] = await getProducts();
+  let productFilter = prod.filter((item) => {
+    return item.isPurchased === true
+  });
+
+  if (productFilter.length > 7) {
+    for (var l of productFilter.slice(-7)) {
+      value.value.push(l.price);
+    }
+  } else {
+    for (var l of productFilter) {
+      value.value.push(l.price);
+    }
+  }
+}
+
 const listCategories = async () => {
     categories.value = await getCategories();
+}
+
+const filterDeposits = async (name: string) => {
+  let depositFilter = deposits.value.filter((item) => {
+    return name === item.depositName
+  });
+
+  deposits.value = depositFilter;
+}
+
+const filterProducts = async (name: string) => {
+  if (name === '') {
+    listProducts();
+  }
+  let productFilter = products.value.filter((item) => {
+    return name === item.name
+  });
+
+  products.value = productFilter;
 }
 
 onMounted(() => {
     listDeposits();
     listCategories();
     listProducts();
+    defineValues();
 });
 </script>
 
 <template>
     <div class="app">
-      <Navbar />
+      <Navbar
+        v-if="deposits.length > 0 && products.length" 
+        :deposits="deposits"
+        :products="products"
+        :filter-deposits="filterDeposits"
+        :filter-products="filterProducts"
+        :load-products="listProducts"
+        :load-deposits="listDeposits"
+      />
+      <Navbar
+        v-else 
+        :deposits="deposits"
+        :products="products"
+        :filter-deposits="filterDeposits"
+        :filter-products="filterProducts"
+        :load-products="listProducts"
+        :load-deposits="listDeposits"
+      />
       <v-card class="elevation-0">
           <v-tabs
             class="mb-2"
@@ -114,42 +153,16 @@ onMounted(() => {
                 <v-tabs-window-item 
                   value="main"
                 >
-                  <div class="area-dashboard d-flex flex-lg-row flex-column ga-10">
-                    <div class="w-lg-50 w-sm-100">
-                      <v-card
-                        class="mx-auto text-center"
-                        color="white"
-                        elevation="0"
-                      >
-                        <v-card-text class="pa-0">
-                          <div class="text-lg-h4 text-sm-h5 font-weight-thin text-left">
-                            Vendas nas últimas 24 horas
-                          </div>
-                        </v-card-text>  
-                        <v-card-text class="pa-0">
-                          <v-sheet
-                            class="rounded-lg border-sm" 
-                            color="white"
-                          >
-                            <v-sparkline
-                              :model-value="value"
-                              color="#00c6ff"
-                              height="170"
-                              padding="24"
-                              stroke-linecap="round"
-                              smooth
-                            >
-                              <template v-slot:label="item">
-                                R${{ item.value }}
-                              </template>
-                            </v-sparkline>
-                          </v-sheet>
-                        </v-card-text>
-                      </v-card>
-                    </div>
-                    <div class="area-map w-lg-50 w-sm-100">
-
-                    </div>
+                  <TabContentMain 
+                    v-if="deposits.length > 0"
+                    :value="value"
+                    :deposits="deposits!"
+                  />
+                  <div 
+                    v-else 
+                    class="d-flex w-100 h-100 justify-center align-center"
+                  >
+                    <h2 style="margin-top: 120px;">Bem-vindo, cadastre depósitos e produtos para que possa ser exibido o dashboard.</h2>
                   </div>
                 </v-tabs-window-item>
 
@@ -158,8 +171,14 @@ onMounted(() => {
                     <v-col
                       cols="lg:6 md:6 sm:12"
                     >
-                      <div class="area-map" style="height: 580px;">
-
+                      <MapApp 
+                        v-if="deposits.length > 0"
+                        :deposits="deposits"
+                      />
+                      <div 
+                        v-else 
+                      >
+                        <h2>Nenhum depósito encontrado.</h2>
                       </div>
                     </v-col>
                     <v-col
@@ -223,7 +242,10 @@ onMounted(() => {
                             :load-categories="listCategories"
                           />
                         </div>
-                        <div class="d-flex flex-lg-wrap w-100">
+                        <div 
+                          v-if="products.length > 0"
+                          class="d-flex flex-lg-wrap w-100"
+                        >
                           <v-expansion-panels
                             :readonly="readonly"
                             multiple
@@ -270,6 +292,11 @@ onMounted(() => {
                               </v-row>
                           </v-expansion-panels>
                         </div>
+                        <div 
+                          v-else 
+                        >
+                          <h2>Nenhum produto encontrado.</h2>
+                        </div>
                       </div>
                   </div>
                 </v-tabs-window-item>
@@ -280,55 +307,54 @@ onMounted(() => {
 </template>
 
 <style scoped>
-  * {
-    font-family: "JetBrains Mono", monospace;
-  }
+* {
+  font-family: "JetBrains Mono", monospace;
+}
 
-  .app {
-    font-weight: 700;
-    font-size: 16px;
-    padding: 23px 33px;
-  }
+.app {
+  font-weight: 700;
+  font-size: 16px;
+  padding: 23px 33px;
+}
 
-  .area-dashboard {
-    max-height: 580px;
-  }
+.area-dashboard {
+  max-height: 580px;
+}
 
-  .logo {
-    width: 207px;
-    height: 68px;
-  }
+.logo {
+  width: 207px;
+  height: 68px;
+}
 
-  .area-map {
-    min-height: 300px;
-    border-radius: 10px;
-    background-color: aqua;
-  }
+.area-map {
+  min-height: 300px;
+  border-radius: 10px;
+}
 
-  .deposits {
-    display: flex;
-    flex-direction: column;
-    padding-left: 2px;
-    padding-right: 2px;
-    padding-bottom: 2px;
-  }
+.deposits {
+  display: flex;
+  flex-direction: column;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-bottom: 2px;
+}
 
-  .products {
-    display: flex;
-    flex-direction: column;
-    padding-left: 2px;
-    padding-right: 2px;
-    padding-bottom: 2px;
-  }
+.products {
+  display: flex;
+  flex-direction: column;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-bottom: 2px;
+}
 
-  .btn-new {
-    width: 165px;
-    max-height: 61px;
-  }
+.btn-new {
+  width: 165px;
+  max-height: 61px;
+}
 
-  .list-products {
-    display: flex;
-    flex-wrap: wrap;
-  }
+.list-products {
+  display: flex;
+  flex-wrap: wrap;
+}
 </style>
 
