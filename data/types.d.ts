@@ -92,7 +92,7 @@ interface Product {
     deposit: {
         depositName: string;
         limit: number;
-    }
+    };
     isActive: boolean;
     isPurchased: boolean;
 }

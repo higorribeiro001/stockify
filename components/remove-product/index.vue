@@ -1,5 +1,30 @@
 <script setup lang="ts">
-    const dialog = ref(false);
+import { deleteProduct } from '~/services/api/product';
+
+interface DeleteProduct {
+    id: number;
+    loadProducts: () => void;
+}
+
+const props = defineProps<DeleteProduct>();
+
+const dialog = ref(false);
+
+const snackbar = ref({
+    active: false,
+    text: ''
+});
+
+const removeProduct = async () => {
+    const response = await deleteProduct(props.id);
+
+    if (response.status === 204) {
+        snackbar.value.active = true;
+        snackbar.value.text = 'Produto removido com sucesso.';
+        props.loadProducts();
+        dialog.value = false;
+    } 
+}
 </script>
 
 <template>
@@ -30,7 +55,7 @@
                 <v-btn
                     class="rounded-lg text-uppercase font-weight-black ml-5"
                     color="#FF6A00"
-                    @click="dialog = false"
+                    @click="removeProduct()"
                 >
                     Excluir
                 </v-btn>

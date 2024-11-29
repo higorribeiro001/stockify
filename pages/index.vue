@@ -211,7 +211,7 @@ onMounted(() => {
 
                 <v-tabs-window-item value="products">
                   <div class="d-flex w-100">
-                    <div class="products">
+                    <div class="products w-100">
                         <div class="d-flex flex-lg-row flex-sm-column justify-sm-between ga-1 w-100">
                           <NewProduct 
                             :items-products="itemsProducts"
@@ -223,52 +223,53 @@ onMounted(() => {
                             :load-categories="listCategories"
                           />
                         </div>
-                        <v-expansion-panels
-                          :readonly="readonly"
-                          multiple
-                        >
-                          <v-container 
-                            class="px-4 sm:px-0"
-                            fluid
+                        <div class="d-flex flex-lg-wrap w-100">
+                          <v-expansion-panels
+                            :readonly="readonly"
+                            multiple
                           >
-                            <v-row>
-                              <v-col 
-                                v-for="(product, index) in products" 
-                                class="pr-lg-5 px-md-2 px-0"
-                                :key="index"
-                                cols="12" 
-                              >
-                                <v-expansion-panel>
-                                  <v-expansion-panel-title>
-                                    <PanelTitleProduct 
-                                      :name="product.name"
-                                      :blob_image="product.blobImage"
-                                      :is_active="product.isActive"
-                                      :category_id="product.categoryId"
-                                      :category="product.category"
-                                    />
-                                  </v-expansion-panel-title>
-                                  <v-expansion-panel-text>
-                                    <PanelTextProduct 
-                                      :id="product.id"
-                                      :name="product.name"
-                                      :blobImage="product.blobImage"
-                                      :isActive="product.isActive"
-                                      :isPurchased="product.isPurchased"
-                                      :categoryId="product.categoryId"
-                                      :category="product.category"
-                                      :depositId="product.depositId"
-                                      :deposit="product.deposit"
-                                      :description="product.description"
-                                      :price="product.price"
-                                      :load-products="listProducts"
-                                    />
-                                  </v-expansion-panel-text>
-                                </v-expansion-panel>
-                              </v-col>
-                            </v-row>
-                          </v-container>
-                        </v-expansion-panels>
+                              <v-row>
+                                <v-col 
+                                  v-for="(product, index) in products" 
+                                  class="pr-lg-5 px-md-2 px-3 pl-lg-4"
+                                  style="max-width: 600px;"
+                                  :key="index"
+                                  cols="12" 
+                                >
+                                  <v-expansion-panel>
+                                    <v-expansion-panel-title>
+                                      <PanelTitleProduct 
+                                        :name="product.name"
+                                        :blob_image="product.blobImage"
+                                        :is_active="product.isActive"
+                                        :category_id="product.categoryId"
+                                        :nameCategory="product.category?.nameCategory"
+                                      />
+                                    </v-expansion-panel-title>
+                                    <v-expansion-panel-text>
+                                      <PanelTextProduct 
+                                        :id="product.id"
+                                        :name="product.name"
+                                        :blobImage="product.blobImage"
+                                        :isActive="product.isActive"
+                                        :isPurchased="product.isPurchased"
+                                        :categoryId="product.categoryId"
+                                        :category="product.category"
+                                        :depositId="product.depositId"
+                                        :deposit="product.deposit"
+                                        :description="product.description"
+                                        :price="product.price"
+                                        :categories="categories"
+                                        :deposits="deposits"
+                                        :items-products="itemsProducts"
+                                        :load-products="listProducts"
+                                      />
+                                    </v-expansion-panel-text>
+                                  </v-expansion-panel>
+                                </v-col>
+                              </v-row>
+                          </v-expansion-panels>
+                        </div>
                       </div>
                   </div>
                 </v-tabs-window-item>
@@ -318,8 +319,6 @@ onMounted(() => {
     padding-left: 2px;
     padding-right: 2px;
     padding-bottom: 2px;
-    max-width: 600px;
-    width: 600px;
   }
 
   .btn-new {

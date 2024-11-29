@@ -3,9 +3,7 @@
         name: string;
         blob_image: string;
         category_id : number;
-        category: {
-            nameCategory: string;
-        };
+        nameCategory: string;
         is_active: boolean;
     }
 
@@ -46,7 +44,7 @@
             </div>
             <div class="d-flex flex-row ga-2">
                 <h3 class="text-subtitle-2 font-weight-medium">Categoria:</h3>
-                <h3 class="text-subtitle-2 font-weight-medium">{{ props.category.nameCategory }}</h3>
+                <h3 class="text-subtitle-2 font-weight-medium">{{ props.nameCategory }}</h3>
             </div>
         </v-col>
     </div>

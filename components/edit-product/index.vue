@@ -1,66 +1,215 @@
 <script setup lang="ts">
-    interface Product {
-        name: string;
-        blob_image: string;
-        category_id : number;
-        category : string;
-        is_active: boolean;
-        is_purchased : boolean;
-        description: string;
-        deposit_id: number;
-        deposit: string;
-        price: number;
+import { putProduct } from '~/services/api/product';
+
+interface Product {
+    id: number;
+    name: string;
+    blob_image: string;
+    category_id : number;
+    category: {
+        nameCategory: string;
+    };
+    is_active: boolean;
+    is_purchased : boolean;
+    description: string;
+    deposit_id: number;
+    deposit: {
+        depositName: string;
+        limit: number;
     }
+    price: number;
+    deposits: Deposit[];
+    categories: Category[];
+    itemsProducts: ItemProduct[];
+    loadProducts: () => void;
+}
 
-    const props = defineProps<Product>()
+const props = defineProps<Product>()
 
-    const dialog = ref(false);
+const dialog = ref(false);
 
-    const product = ref([
+const product = ref([
     {
         label: 'Nome*',
         type: 'text',
-        value: props.name
-       },
-       {
+        name: 'name',
+        value: props.name,
+        error: ''
+    },
+    {
         label: 'Imagem*',
-        type: 'file',
-        value: null
-       },
-       {
+        type: 'select',
+        name: 'blobImage',
+        value:  props.blob_image,
+        error: ''
+    },
+    {
         label: 'Descrição*',
         type: 'text',
-        value: props.description
-       },
-       {
+        name: 'description',
+        value: props.description,
+        error: ''
+    },
+    {
         label: 'Categoria*',
         type: 'select',
-        value: props.category
-       },
-       {
+        name: 'categoryId',
+        value: props.category_id,
+        error: ''
+    },
+    {
         label: 'Ativo*',
         type: 'select',
-        value: String(props.is_active)
-       },
-       {
+        name: 'isActive',
+        value: props.is_active ? 'Sim' : 'Não',
+        error: ''
+    },
+    {
         label: 'Vendido*',
         type: 'select',
-        value: String(props.is_purchased)
-       },
-       {
+        name: 'isPurchased',
+        value: props.is_purchased ? 'Sim' : 'Não',
+        error: ''
+    },
+    {
         label: 'Depósito*',
         type: 'select',
-        value: props.deposit
-       },
-       {
+        name: 'depositId',
+        value: props.deposit_id,
+        error: ''
+    },
+    {
         label: 'Preço*',
         type: 'text',
-        value: String(props.price)
-       },
-    ]);
+        name: 'price',
+        value: String(props.price),
+        error: ''
+    },
+]);
+
+const showErrors = ref(false);
+const isLoading = ref(false);
+const snackbar = ref({
+    active: false,
+    text: ''
+});
+
+const itemsActive = ref(
+    [
+        {
+            label: "Sim",
+            value: true
+        },
+        {
+            label: "Não",
+            value: false
+        }
+    ]
+);
+
+const validateField = (index: number) => {
+    const field = product.value[index];
+    switch (field.name) {
+        case 'name':
+            field.error = field.value !== '' ? '' : 'Nome deve ter pelo menos 2 caracteres.';
+            break;
+        case 'description':
+            field.error = field.value !== ''
+                ? '' 
+                : 'Descrição deve ter entre 3 e 255 caracteres.';
+            break;
+        case 'blobImage':
+            field.error = field.value !== ''
+                ? '' 
+                : 'Selecione uma imagem.';
+            break;
+        case 'price':
+            field.error = String(field.value).includes(',') 
+                ? '' 
+                : 'Preço inválido, coloque vírgula.';
+            break;
+        case 'categoryId':
+            field.error = field.value !== ''
+                ? '' 
+                : 'Categoria inválida.';
+            break;
+        case 'depositId':
+            field.error = field.value !== ''
+                ? '' 
+                : 'Depósito inválido.';
+            break;
+        default:
+            field.error = '';
+            break;
+    }
+};
+
+const submitForm = async () => {
+    let isValid = true;
+
+    isLoading.value = true;
+
+    product.value.forEach((field, index) => {
+        validateField(index);
+        if (field.error) isValid = false;
+    });
+
+    if (isValid) {
+        try {
+            const response = await putProduct({
+                id: props.id,
+                name: product.value[0].value as string,
+                blobImage: product.value[1].value as string,
+                description: product.value[2].value as string,
+                categoryId: parseInt(product.value[3].value as string),
+                depositId: parseInt(product.value[6].value as string),
+                price: parseFloat(String(product.value[7].value).replace(',', '.')),
+                isActive: Boolean(product.value[4].value),
+                isPurchased: Boolean(product.value[5].value)
+            });
+
+            if (response.status === 200) {
+                snackbar.value.active = true;
+                snackbar.value.text = 'Produto editado com sucesso.';
+                props.loadProducts();
+                cancel();
+            } 
+        } catch {
+            snackbar.value.active = true;
+            snackbar.value.text = 'Algo deu errado. Tente novamente.';
+        } finally {
+            isLoading.value = false;
+        }
+    } 
+};
+
+const cancel = () => {
+    dialog.value = false;
+    for (var f of product.value) {
+        f.value = '';
+        f.error = '';
+    }
+    showErrors.value = false;
+}
 </script>
 
 <template>
+    <v-snackbar
+      v-model="snackbar.active"
+      multi-line
+    >
+      {{ snackbar.text }}
+
+      <template v-slot:actions>
+        <v-btn
+          color="red"
+          variant="text"
+          @click="snackbar.active = false"
+        >
+          Fechar
+        </v-btn>
+      </template>
+    </v-snackbar>
     <v-dialog
         v-model="dialog"
         max-width="600"
@@ -76,60 +225,63 @@
                 Editar
             </v-btn>
         </template>
-
-        <v-card
-            title="Editar Depósito"
+        <form 
+            ref="formRef"
         >
-            <v-card-text>
-                <v-row dense>
-                    <v-col
-                        cols="12"
-                        md="6"
-                        sm="6"
-                        v-for="(d) in product"
+            <v-card
+                title="Editar Produto"
+            >
+                <v-card-text>
+                    <v-row dense>
+                        <v-col
+                            cols="12"
+                            md="6"
+                            sm="6"
+                            v-for="(d, index) in product"
+                        >
+                            <v-text-field
+                                v-if="d.type === 'text'"
+                                :label="d.label"
+                                v-model="d.value"
+                                :name="d.name"
+                                :error-messages="d.error"
+                                @input="validateField(index)"
+                            ></v-text-field>
+                            <v-select
+                                v-else
+                                :items="d.name === 'depositId' ? props.deposits : d.name === 'categoryId' ? props.categories : d.name === 'blobImage' ? props.itemsProducts : itemsActive"
+                                :item-title="d.name === 'depositId' ? 'depositName' : d.name === 'categoryId' ? 'nameCategory' : 'label'"
+                                :item-value="d.name === 'blobImage' || d.name === 'isActive' || d.name === 'isPurchased' ? 'value' : 'id'"
+                                :label="d.label"
+                                v-model="d.value"
+                                :name="d.name"
+                                :error-messages="d.error"
+                                @input="validateField(index)"
+                                ></v-select>
+                        </v-col>
+
+                    </v-row>
+
+                    <small class="text-caption text-medium-emphasis font-weight-bold">*Campos obrigatórios</small>
+                </v-card-text>
+
+                <v-card-actions class="d-flex justify-space-between pb-7">
+                    <v-btn
+                        class="rounded-lg text-uppercase font-weight-black ml-5"
+                        color="#FF6A00"
+                        @click="submitForm"
                     >
-                        <v-text-field
-                            v-if="d.type === 'text'"
-                            :label="d.label"
-                            v-model="d.value"
-                            required
-                        ></v-text-field>
-                        <v-file-input
-                            v-else-if="d.type === 'file'"
-                            accept="image/*"
-                            label="Imagem"
-                            required
-                        ></v-file-input>
-                        <v-select
-                            v-else
-                            :items="['0-17', '18-29', '30-54', '54+']"
-                            :label="d.label"
-                            v-model="d.value"
-                            required
-                        ></v-select>
-                    </v-col>
-
-                </v-row>
-
-                <small class="text-caption text-medium-emphasis font-weight-bold">*Campos obrigatórios</small>
-            </v-card-text>
-
-            <v-card-actions class="d-flex justify-space-between pb-7">
-                <v-btn
-                    class="rounded-lg text-uppercase font-weight-black ml-5"
-                    color="#FF6A00"
-                    @click="dialog = false"
-                >
-                    Salvar
-                </v-btn>
-                <v-btn
-                    class="rounded-lg text-uppercase font-weight-black mr-5"
-                    @click="dialog = false"
-                >
-                    Cancelar
-                </v-btn>
-            </v-card-actions>
-        </v-card>
+                        Salvar
+                    </v-btn>
+                    <v-btn
+                        class="rounded-lg text-uppercase font-weight-black mr-5"
+                        @click="cancel"
+                    >
+                        Cancelar
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </form>
     </v-dialog>
 </template>
 
