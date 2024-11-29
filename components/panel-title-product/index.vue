@@ -3,13 +3,15 @@
         name: string;
         blob_image: string;
         category_id : number;
-        category : string;
+        category: {
+            nameCategory: string;
+        };
         is_active: boolean;
     }
 
     import ballActive from '../public/assets/ball-active.svg';
     import ballInactive from '../public/assets/ball-inactive.svg';
-    
+    import imageEx from '../public/assets/image-example.svg';
 
     const props = defineProps<Product>()
 </script>
@@ -22,7 +24,7 @@
             <v-img
                 :width="70"
                 :height="70"
-                :src="props.blob_image"
+                :src="props.blob_image ? '../public'+props.blob_image : imageEx"
             ></v-img>
         </div>
         <v-col class="d-flex flex-column pa-0">
@@ -44,7 +46,7 @@
             </div>
             <div class="d-flex flex-row ga-2">
                 <h3 class="text-subtitle-2 font-weight-medium">Categoria:</h3>
-                <h3 class="text-subtitle-2 font-weight-medium">{{ props.category }}</h3>
+                <h3 class="text-subtitle-2 font-weight-medium">{{ props.category.nameCategory }}</h3>
             </div>
         </v-col>
     </div>

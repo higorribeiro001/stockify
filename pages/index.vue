@@ -1,197 +1,91 @@
 <script setup lang="ts">
-  interface Product {
-      name: string;
-      blob_image: string;
-      category_id : number;
-      category : string;
-      is_active: boolean;
-      is_purchased : boolean;
-      description: string;
-      deposit_id: number;
-      deposit: string;
-      price: number;
-  }
-
-  import Navbar from '../components/navbar/index.vue';
-  import PanelTitleDeposit from '../components/panel-title-deposit/index.vue';
-  import PanelTextDeposit from '../components/panel-text-deposit/index.vue';
-  import PanelTitleProduct from '../components/panel-title-product/index.vue';
-  import PanelTextProduct from '../components/panel-text-product/index.vue';
-  import NewDeposit from '../components/new-deposit/index.vue';
-  import NewProduct from '../components/new-product/index.vue';
-  import imageExample from '../public/assets/image-example.svg';
+import Navbar from '../components/navbar/index.vue';
+import PanelTitleDeposit from '../components/panel-title-deposit/index.vue';
+import PanelTextDeposit from '../components/panel-text-deposit/index.vue';
+import PanelTitleProduct from '../components/panel-title-product/index.vue';
+import PanelTextProduct from '../components/panel-text-product/index.vue';
+import NewDeposit from '../components/new-deposit/index.vue';
+import NewProduct from '../components/new-product/index.vue';
 import { getDeposits } from '~/services/api/deposit';
+import { getCategories } from '~/services/api/category';
+import { getProducts } from '~/services/api/product';
 
-  const orange = '#FF6A00';
-  const tab = ref('main');
-  const tabs = [{
-    text: 'Principal',
-    value: 'main'
-  }, 
+const orange = '#FF6A00';
+const tab = ref('main');
+const tabs = [{
+  text: 'Principal',
+  value: 'main'
+}, 
+{
+  text: 'Depósitos',
+  value: 'deposits'
+}, 
+{
+  text: 'Produtos',
+  value: 'products'
+}];
+const value = [
+  423,
+  446,
+  675,
+  510,
+  590,
+  610,
+  760,
+];
+const readonly = ref(false);
+const deposits = ref<DepositComplete[]>([]);
+const categories = ref<Category[]>([]);
+const itemsProducts: ItemProduct[] = [
   {
-    text: 'Depósitos',
-    value: 'deposits'
-  }, 
+      label: 'IPhone',
+      value: '/assets/products/iphone.jpg'
+  },
   {
-    text: 'Produtos',
-    value: 'products'
-  }];
-  const value = [
-    423,
-    446,
-    675,
-    510,
-    590,
-    610,
-    760,
-  ];
-  const readonly = ref(false);
-  const deposits = ref<DepositComplete[]>([]);
+      label: 'Celular Samsung',
+      value: '/assets/products/samsung.jpg'
+  },
+  {
+      label: 'Pc Gamer',
+      value: '/assets/products/pc-gamer.jpg'
+  },
+  {
+      label: 'Pc Dell',
+      value: '/assets/products/pc-dell.jpg'
+  },
+  {
+      label: 'PS5',
+      value: '/assets/products/ps5.jpg'
+  },
+  {
+      label: 'Carro 1',
+      value: '/assets/products/carro1.jpg'
+  },
+  {
+      label: 'Camaro',
+      value: '/assets/products/camaro.jpg'
+  }
+];
 
-  const products: Product[] = [
-    {
-      name: 'Produto 1',
-      blob_image: imageExample,
-      description: 'Lorem ipsum dolor sit amet.',
-      category_id: 1,
-      category: 'Serviços digitais',
-      is_active: true,
-      is_purchased: true,
-      deposit_id: 1,
-      deposit: 'Depósito 1',
-      price: 40.00
-    },
-    {
-      name: 'Produto 1',
-      blob_image: imageExample,
-      description: 'Lorem ipsum dolor sit amet.',
-      category_id: 1,
-      category: 'Serviços digitais',
-      is_active: true,
-      is_purchased: true,
-      deposit_id: 1,
-      deposit: 'Depósito 1',
-      price: 40.00
-    },
-    {
-      name: 'Produto 1',
-      blob_image: imageExample,
-      description: 'Lorem ipsum dolor sit amet.',
-      category_id: 1,
-      category: 'Serviços digitais',
-      is_active: true,
-      is_purchased: true,
-      deposit_id: 1,
-      deposit: 'Depósito 1',
-      price: 40.00
-    },
-    {
-      name: 'Produto 1',
-      blob_image: imageExample,
-      description: 'Lorem ipsum dolor sit amet.',
-      category_id: 1,
-      category: 'Serviços digitais',
-      is_active: true,
-      is_purchased: true,
-      deposit_id: 1,
-      deposit: 'Depósito 1',
-      price: 40.00
-    },
-    {
-      name: 'Produto 1',
-      blob_image: imageExample,
-      description: 'Lorem ipsum dolor sit amet.',
-      category_id: 1,
-      category: 'Serviços digitais',
-      is_active: true,
-      is_purchased: true,
-      deposit_id: 1,
-      deposit: 'Depósito 1',
-      price: 40.00
-    },
-    {
-      name: 'Produto 1',
-      blob_image: imageExample,
-      description: 'Lorem ipsum dolor sit amet.',
-      category_id: 1,
-      category: 'Serviços digitais',
-      is_active: true,
-      is_purchased: true,
-      deposit_id: 1,
-      deposit: 'Depósito 1',
-      price: 40.00
-    },
-    {
-      name: 'Produto 1',
-      blob_image: imageExample,
-      description: 'Lorem ipsum dolor sit amet.',
-      category_id: 1,
-      category: 'Serviços digitais',
-      is_active: true,
-      is_purchased: true,
-      deposit_id: 1,
-      deposit: 'Depósito 1',
-      price: 40.00
-    },
-    {
-      name: 'Produto 1',
-      blob_image: imageExample,
-      description: 'Lorem ipsum dolor sit amet.',
-      category_id: 1,
-      category: 'Serviços digitais',
-      is_active: true,
-      is_purchased: true,
-      deposit_id: 1,
-      deposit: 'Depósito 1',
-      price: 40.00
-    },
-    {
-      name: 'Produto 1',
-      blob_image: imageExample,
-      description: 'Lorem ipsum dolor sit amet.',
-      category_id: 1,
-      category: 'Serviços digitais',
-      is_active: true,
-      is_purchased: true,
-      deposit_id: 1,
-      deposit: 'Depósito 1',
-      price: 40.00
-    },
-    {
-      name: 'Produto 1',
-      blob_image: imageExample,
-      description: 'Lorem ipsum dolor sit amet.',
-      category_id: 1,
-      category: 'Serviços digitais',
-      is_active: true,
-      is_purchased: true,
-      deposit_id: 1,
-      deposit: 'Depósito 1',
-      price: 40.00
-    },
-    {
-      name: 'Produto 1',
-      blob_image: imageExample,
-      description: 'Lorem ipsum dolor sit amet.',
-      category_id: 1,
-      category: 'Serviços digitais',
-      is_active: true,
-      is_purchased: true,
-      deposit_id: 1,
-      deposit: 'Depósito 1',
-      price: 40.00
-    },
-  ];
+const products = ref<Product[]>([]);
 
-  const listDeposits = async () => {
-      deposits.value = await getDeposits();
-  };
+const listDeposits = async () => {
+    deposits.value = await getDeposits();
+};
 
-  onMounted(() => {
-      listDeposits();
-  });
+const listProducts = async () => {
+    products.value = await getProducts();
+};
 
-  
+const listCategories = async () => {
+    categories.value = await getCategories();
+}
+
+onMounted(() => {
+    listDeposits();
+    listCategories();
+    listProducts();
+});
 </script>
 
 <template>
@@ -318,7 +212,17 @@ import { getDeposits } from '~/services/api/deposit';
                 <v-tabs-window-item value="products">
                   <div class="d-flex">
                     <div class="products">
-                        <NewProduct />
+                        <div class="d-flex flex-lg-row flex-sm-column ga-3 w-100">
+                          <NewProduct 
+                            :items-products="itemsProducts"
+                            :categories="categories"
+                            :deposits="deposits"
+                            :load-products="() => {}"
+                          />
+                          <NewCategory 
+                            :load-categories="() => {}"
+                          />
+                        </div>
                         <v-expansion-panels
                           :readonly="readonly"
                           multiple
@@ -339,24 +243,26 @@ import { getDeposits } from '~/services/api/deposit';
                                   <v-expansion-panel-title>
                                     <PanelTitleProduct 
                                       :name="product.name"
-                                      :blob_image="product.blob_image"
-                                      :is_active="product.is_active"
+                                      :blob_image="product.blobImage"
+                                      :is_active="product.isActive"
+                                      :category_id="product.categoryId"
                                       :category="product.category"
-                                      :category_id="product.category_id"
                                     />
                                   </v-expansion-panel-title>
                                   <v-expansion-panel-text>
                                     <PanelTextProduct 
+                                      :id="product.id"
                                       :name="product.name"
-                                      :blob_image="product.blob_image"
-                                      :is_active="product.is_active"
-                                      :is_purchased="product.is_purchased"
+                                      :blobImage="product.blobImage"
+                                      :isActive="product.isActive"
+                                      :isPurchased="product.isPurchased"
+                                      :categoryId="product.categoryId"
                                       :category="product.category"
-                                      :category_id="product.category_id"
-                                      :deposit_id="product.deposit_id"
+                                      :depositId="product.depositId"
                                       :deposit="product.deposit"
                                       :description="product.description"
                                       :price="product.price"
+                                      :load-products="listProducts"
                                     />
                                   </v-expansion-panel-text>
                                 </v-expansion-panel>

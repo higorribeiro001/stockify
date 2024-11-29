@@ -3,16 +3,23 @@
     import RemoveProduct from '../remove-product/index.vue';
 
     interface Product {
+        id: number;
         name: string;
-        blob_image: string;
-        category_id : number;
-        category : string;
-        is_active: boolean;
-        is_purchased : boolean;
+        blobImage: string;
+        isActive: boolean;
+        isPurchased : boolean;
+        categoryId: number;
+        category: {
+            nameCategory: string;
+        };
         description: string;
-        deposit_id: number;
-        deposit: string;
+        depositId: number;
+        deposit: {
+            depositName: string;
+            limit: number;
+        }
         price: number;
+        loadProducts: () => void;
     }
 
     const props = defineProps<Product>()
@@ -37,15 +44,15 @@
             <div class="d-flex flex-row ga-2 justify-space-between mt-4 pb-1">
                 <EditProduct 
                     :name="props.name"
-                    :blob_image="props.blob_image"
-                    :category_id="props.category_id"
-                    :category="props.category"
-                    :is_active="props.is_active"
-                    :is_purchased="props.is_purchased"
+                    :blob_image="props.blobImage"
+                    :category_id="props.categoryId"
+                    :is_active="props.isActive"
+                    :is_purchased="props.isPurchased"
                     :description="props.description"
-                    :deposit_id="props.deposit_id"
-                    :deposit="props.deposit"
+                    :deposit_id="props.depositId"
+                    :deposit="''"
                     :price="props.price"
+                    :category="''"
                 />
                 <RemoveProduct />
             </div>

@@ -1,256 +1,256 @@
 <script setup lang="ts">
-    interface NewDeposit {
-        loadDeposits: () => void;
+interface NewDeposit {
+    loadDeposits: () => void;
+}
+
+import { setAddress } from '~/services/api/address';
+import { setDeposit } from '~/services/api/deposit';
+import { getAddress, getCities, getLocation, getUf } from '~/services/api/locations';
+import Loading from '../loading/index.vue';
+
+const props = defineProps<NewDeposit>();
+
+const dialog = ref(false);
+
+const orange = '#FF6A00';
+
+const itemsUf = ref([{}]);
+const itemsCity = ref([{}]);
+
+const location = ref({
+    latitude: null,
+    longitude: null
+})
+
+const snackbar = ref({
+    active: false,
+    text: ''
+});
+
+const isLoading = ref(false);
+
+const newDeposit = ref([
+    {
+        label: 'Nome*',
+        type: 'text',
+        name: 'depositName',
+        value: '',
+        error: ''
+    },
+    {
+        label: 'Limite*',
+        type: 'text',
+        name: 'limit',
+        value: '',
+        error: ''
+    },
+    {
+        label: 'País*',
+        type: 'text',
+        name: 'country',
+        value: 'Brasil',
+        error: ''
+    },
+    {
+        label: 'Estado*',
+        type: 'select',
+        name: 'uf',
+        value: '',
+        error: ''
+    },
+    {
+        label: 'Cidade*',
+        type: 'select',
+        name: 'city',
+        value: '',
+        error: ''
+    },
+    {
+        label: 'CEP*',
+        type: 'text',
+        name: 'cep',
+        value: '',
+        error: ''
+    },
+    {
+        label: 'Endereço*',
+        type: 'text',
+        name: 'addressValue',
+        value: '',
+        error: ''
+    },
+    {
+        label: 'Bairro*',
+        type: 'text',
+        name: 'neighborhood',
+        value: '',
+        error: ''
+    },
+]);
+
+const showErrors = ref(false);
+
+const validateField = (index: number) => {
+    const field = newDeposit.value[index];
+    switch (field.name) {
+        case 'depositName':
+            field.error = field.value.length >= 2 ? '' : 'Nome deve ter pelo menos 2 caracteres.';
+            break;
+        case 'limit':
+            field.error = parseFloat(field.value) > 0 ? '' : 'Limite deve ser maior que 0.';
+            break;
+        case 'addressValue':
+            field.error = field.value.length >= 3 && field.value.length <= 255 
+                ? '' 
+                : 'Endereço deve ter entre 3 e 255 caracteres.';
+            break;
+        case 'cep':
+            field.error = field.value.length >= 3 && field.value.length <= 9 
+                ? '' 
+                : 'CEP deve ter entre 3 e 9 caracteres.';
+            break;
+        case 'city':
+            field.error = field.value.length >= 3 && field.value.length <= 200 
+                ? '' 
+                : 'Cidade deve ter entre 3 e 200 caracteres.';
+            break;
+        case 'neighborhood':
+            field.error = field.value.length >= 3 && field.value.length <= 200 
+                ? '' 
+                : 'Bairro deve ter entre 3 e 200 caracteres.';
+            break;
+        case 'uf':
+            field.error = field.value.length === 2 ? '' : 'Estado deve ter exatamente 2 caracteres.';
+            break;
+        case 'country':
+            field.error = field.value.length >= 3 && field.value.length <= 120 
+                ? '' 
+                : 'País deve ter entre 3 e 120 caracteres.';
+            break;
+        default:
+            field.error = '';
+            break;
     }
+};
 
-    import { setAddress } from '~/services/api/address';
-    import { setDeposit } from '~/services/api/deposit';
-    import { getAddress, getCities, getLocation, getUf } from '~/services/api/locations';
-    import Loading from '../loading/index.vue';
+const submitForm = async () => {
+    let isValid = true;
 
-    const props = defineProps<NewDeposit>();
+    isLoading.value = true;
 
-    const dialog = ref(false);
-
-    const orange = '#FF6A00';
-
-    const itemsUf = ref([{}]);
-    const itemsCity = ref([{}]);
-
-    const location = ref({
-        latitude: null,
-        longitude: null
-    })
-
-    const snackbar = ref({
-        active: false,
-        text: ''
+    newDeposit.value.forEach((field, index) => {
+        validateField(index);
+        if (field.error) isValid = false;
     });
 
-    const isLoading = ref(false);
+    if (isValid) {
+        try {
+            const response = await setAddress({
+                cep: newDeposit.value[5].value,
+                addressValue: newDeposit.value[6].value,
+                neighborhood: newDeposit.value[7].value,
+                city: newDeposit.value[4].value,
+                uf: newDeposit.value[3].value,
+                country: newDeposit.value[2].value,
+                latitude: location.value.latitude ?? 0,
+                longitude: location.value.longitude ?? 0
+            });
 
-    const newDeposit = ref([
-        {
-            label: 'Nome*',
-            type: 'text',
-            name: 'depositName',
-            value: '',
-            error: ''
-        },
-        {
-            label: 'Limite*',
-            type: 'text',
-            name: 'limit',
-            value: '',
-            error: ''
-        },
-        {
-            label: 'País*',
-            type: 'text',
-            name: 'country',
-            value: 'Brasil',
-            error: ''
-        },
-        {
-            label: 'Estado*',
-            type: 'select',
-            name: 'uf',
-            value: '',
-            error: ''
-        },
-        {
-            label: 'Cidade*',
-            type: 'select',
-            name: 'city',
-            value: '',
-            error: ''
-        },
-        {
-            label: 'CEP*',
-            type: 'text',
-            name: 'cep',
-            value: '',
-            error: ''
-        },
-        {
-            label: 'Endereço*',
-            type: 'text',
-            name: 'addressValue',
-            value: '',
-            error: ''
-        },
-        {
-            label: 'Bairro*',
-            type: 'text',
-            name: 'neighborhood',
-            value: '',
-            error: ''
-        },
-    ]);
-
-    const showErrors = ref(false);
-
-    const validateField = (index: number) => {
-        const field = newDeposit.value[index];
-        switch (field.name) {
-            case 'depositName':
-                field.error = field.value.length >= 2 ? '' : 'Nome deve ter pelo menos 2 caracteres.';
-                break;
-            case 'limit':
-                field.error = parseFloat(field.value) > 0 ? '' : 'Limite deve ser maior que 0.';
-                break;
-            case 'addressValue':
-                field.error = field.value.length >= 3 && field.value.length <= 255 
-                    ? '' 
-                    : 'Endereço deve ter entre 3 e 255 caracteres.';
-                break;
-            case 'cep':
-                field.error = field.value.length >= 3 && field.value.length <= 9 
-                    ? '' 
-                    : 'CEP deve ter entre 3 e 9 caracteres.';
-                break;
-            case 'city':
-                field.error = field.value.length >= 3 && field.value.length <= 200 
-                    ? '' 
-                    : 'Cidade deve ter entre 3 e 200 caracteres.';
-                break;
-            case 'neighborhood':
-                field.error = field.value.length >= 3 && field.value.length <= 200 
-                    ? '' 
-                    : 'Bairro deve ter entre 3 e 200 caracteres.';
-                break;
-            case 'uf':
-                field.error = field.value.length === 2 ? '' : 'Estado deve ter exatamente 2 caracteres.';
-                break;
-            case 'country':
-                field.error = field.value.length >= 3 && field.value.length <= 120 
-                    ? '' 
-                    : 'País deve ter entre 3 e 120 caracteres.';
-                break;
-            default:
-                field.error = '';
-                break;
-        }
-    };
-
-    const submitForm = async () => {
-        let isValid = true;
-
-        isLoading.value = true;
-
-        newDeposit.value.forEach((field, index) => {
-            validateField(index);
-            if (field.error) isValid = false;
-        });
-
-        if (isValid) {
-            try {
-                const response = await setAddress({
-                    cep: newDeposit.value[5].value,
-                    addressValue: newDeposit.value[6].value,
-                    neighborhood: newDeposit.value[7].value,
-                    city: newDeposit.value[4].value,
-                    uf: newDeposit.value[3].value,
-                    country: newDeposit.value[2].value,
-                    latitude: location.value.latitude ?? 0,
-                    longitude: location.value.longitude ?? 0
+            if (response.status === 201) {
+                const responseDeposit = await setDeposit({
+                    depositName: newDeposit.value[0].value,
+                    limit: parseInt(newDeposit.value[1].value),
+                    isActive: true,
+                    addressId: response.data['id'],
                 });
 
-                if (response.status === 201) {
-                    const responseDeposit = await setDeposit({
-                        depositName: newDeposit.value[0].value,
-                        limit: parseInt(newDeposit.value[1].value),
-                        isActive: true,
-                        addressId: response.data['id'],
-                    });
-
-                    if (responseDeposit.status === 201) {
-                        snackbar.value.active = true;
-                        snackbar.value.text = 'Depósito cadastrado com sucesso.';
-                        props.loadDeposits();
-                        cancel();
-                    } 
+                if (responseDeposit.status === 201) {
+                    snackbar.value.active = true;
+                    snackbar.value.text = 'Depósito cadastrado com sucesso.';
+                    props.loadDeposits();
+                    cancel();
                 } 
-            } catch {
-                snackbar.value.active = true;
-                snackbar.value.text = 'Algo deu errado. Tente novamente.';
-            } finally {
-                isLoading.value = false;
-            }
-        } 
-    };
-
-    const cancel = () => {
-        dialog.value = false;
-        for (var f of newDeposit.value) {
-            f.value = '';
-            f.error = '';
+            } 
+        } catch {
+            snackbar.value.active = true;
+            snackbar.value.text = 'Algo deu errado. Tente novamente.';
+        } finally {
+            isLoading.value = false;
         }
-        showErrors.value = false;
-    }
+    } 
+};
 
-    const searchUf = async () => {
-        try {
-            const response = await getUf();
-            if (response.status === 200) {
-                itemsUf.value = response.data;
-            }
-        } catch (error) {
-            itemsUf.value = [];
+const cancel = () => {
+    dialog.value = false;
+    for (var f of newDeposit.value) {
+        f.value = '';
+        f.error = '';
+    }
+    showErrors.value = false;
+}
+
+const searchUf = async () => {
+    try {
+        const response = await getUf();
+        if (response.status === 200) {
+            itemsUf.value = response.data;
         }
+    } catch (error) {
+        itemsUf.value = [];
     }
+}
 
-    const searchCity = async (uf: string) => {
-        try {
-            const response = await getCities(uf);
-            if (response.status === 200) {
-                itemsCity.value = response.data;
-            }
-        } catch (error) {
-            itemsCity.value = [];
+const searchCity = async (uf: string) => {
+    try {
+        const response = await getCities(uf);
+        if (response.status === 200) {
+            itemsCity.value = response.data;
         }
+    } catch (error) {
+        itemsCity.value = [];
     }
+}
 
-    const searchCep = async (cep: string) => {
-        try {
-            const response = await getAddress(cep);
-            if (response.status === 200) {
-                newDeposit.value[6].value = response.data['logradouro'];
-                newDeposit.value[7].value = response.data['bairro'];
-            }
-        } catch (error) {
-            itemsCity.value = [];
+const searchCep = async (cep: string) => {
+    try {
+        const response = await getAddress(cep);
+        if (response.status === 200) {
+            newDeposit.value[6].value = response.data['logradouro'];
+            newDeposit.value[7].value = response.data['bairro'];
         }
+    } catch (error) {
+        itemsCity.value = [];
     }
+}
 
-    const searchLocation = async (cep: string) => {
-        try {
-            const response = await getLocation(cep);
-            if (response.status === 200) {
-                location.value.latitude = response.data['lat'];
-                location.value.longitude = response.data['lng'];
-            }
-        } catch (error) {
-            itemsCity.value = [];
+const searchLocation = async (cep: string) => {
+    try {
+        const response = await getLocation(cep);
+        if (response.status === 200) {
+            location.value.latitude = response.data['lat'];
+            location.value.longitude = response.data['lng'];
         }
+    } catch (error) {
+        itemsCity.value = [];
     }
+}
 
-    onMounted(() => {
-        searchUf();
-    });
+onMounted(() => {
+    searchUf();
+});
 
-    watch(() => newDeposit.value[2].value, () => {
-        searchUf();
-    });
+watch(() => newDeposit.value[2].value, () => {
+    searchUf();
+});
 
-    watch(() => newDeposit.value[3].value, (uf) => {
-        searchCity(uf)
-    });
+watch(() => newDeposit.value[3].value, (uf) => {
+    searchCity(uf)
+});
 
-    watch(() => newDeposit.value[5].value, (cep) => {
-        searchCep(cep);
-        searchLocation(cep);
-    });
+watch(() => newDeposit.value[5].value, (cep) => {
+    searchCep(cep);
+    searchLocation(cep);
+});
 </script>
 
 <template>

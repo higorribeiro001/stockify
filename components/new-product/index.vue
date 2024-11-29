@@ -1,43 +1,171 @@
 <script setup lang="ts">
-    const dialog = ref(false);
+import { setProduct } from '~/services/api/product';
 
-    const orange = '#FF6A00';
+interface NewProduct {
+    deposits: Deposit[];
+    categories: Category[];
+    itemsProducts: ItemProduct[];
+    loadProducts: () => void;
+}
 
-    const newProduct = ref([
-       {
+const props = defineProps<NewProduct>();
+
+const dialog = ref(false);
+
+const orange = '#FF6A00';
+
+const newProduct = ref([
+    {
         label: 'Nome*',
         type: 'text',
-        value: ''
-       },
-       {
+        name: 'name',
+        value: '',
+        error: ''
+    },
+    {
         label: 'Imagem*',
-        type: 'file',
-        value: null
-       },
-       {
+        type: 'select',
+        name: 'blobImage',
+        value: '',
+        error: ''
+    },
+    {
         label: 'Descrição*',
         type: 'text',
-        value: ''
-       },
-       {
+        name: 'description',
+        value: '',
+        error: ''
+    },
+    {
         label: 'Categoria*',
         type: 'select',
-        value: ''
-       },
-       {
+        name: 'categoryId',
+        value: '',
+        error: ''
+    },
+    {
         label: 'Depósito*',
         type: 'select',
-        value: ''
-       },
-       {
+        name: 'depositId',
+        value: '',
+        error: ''
+    },
+    {
         label: 'Preço*',
         type: 'text',
-        value: ''
-       },
-    ]);
+        name: 'price',
+        value: '',
+        error: ''
+    },
+]);
+
+const showErrors = ref(false);
+const isLoading = ref(false);
+const snackbar = ref({
+    active: false,
+    text: ''
+});
+
+const validateField = (index: number) => {
+    const field = newProduct.value[index];
+    switch (field.name) {
+        case 'name':
+            field.error = field.value.length >= 2 ? '' : 'Nome deve ter pelo menos 2 caracteres.';
+            break;
+        case 'description':
+            field.error = field.value.length >= 3 && field.value.length <= 255 
+                ? '' 
+                : 'Descrição deve ter entre 3 e 255 caracteres.';
+            break;
+        case 'blobImage':
+            field.error = field.value !== ''
+                ? '' 
+                : 'Selecione uma imagem.';
+            break;
+        case 'price':
+            field.error = field.value.includes(',') 
+                ? '' 
+                : 'Preço inválido, coloque vírgula.';
+            break;
+        case 'categoryId':
+            field.error = field.value !== ''
+                ? '' 
+                : 'Categoria inválida.';
+            break;
+        case 'depositId':
+            field.error = field.value !== ''
+                ? '' 
+                : 'Depósito inválido.';
+            break;
+        default:
+            field.error = '';
+            break;
+    }
+};
+
+const submitForm = async () => {
+    let isValid = true;
+
+    isLoading.value = true;
+
+    newProduct.value.forEach((field, index) => {
+        validateField(index);
+        if (field.error) isValid = false;
+    });
+
+    if (isValid) {
+        try {
+            const response = await setProduct({
+                name: newProduct.value[0].value,
+                blobImage: newProduct.value[1].value,
+                description: newProduct.value[2].value,
+                categoryId: parseInt(newProduct.value[3].value),
+                depositId: parseInt(newProduct.value[4].value),
+                price: parseFloat(newProduct.value[5].value.replace(',', '.'))
+            });
+
+            if (response.status === 201) {
+                snackbar.value.active = true;
+                snackbar.value.text = 'Produto cadastrado com sucesso.';
+                props.loadProducts();
+                cancel();
+            } 
+        } catch {
+            snackbar.value.active = true;
+            snackbar.value.text = 'Algo deu errado. Tente novamente.';
+        } finally {
+            isLoading.value = false;
+        }
+    } 
+};
+
+const cancel = () => {
+    dialog.value = false;
+    for (var f of newProduct.value) {
+        f.value = '';
+        f.error = '';
+    }
+    showErrors.value = false;
+}
 </script>
 
 <template>
+    <v-snackbar
+      v-model="snackbar.active"
+      multi-line
+    >
+      {{ snackbar.text }}
+
+      <template v-slot:actions>
+        <v-btn
+          color="red"
+          variant="text"
+          @click="snackbar.active = false"
+        >
+          Fechar
+        </v-btn>
+      </template>
+    </v-snackbar>
     <v-dialog
         v-model="dialog"
         max-width="600"
@@ -52,61 +180,64 @@
                 Novo produto
             </v-btn>
         </template>
-
-        <v-card
-            title="Novo Produto"
+        <form 
+            ref="formRef"
         >
-            <v-card-text>
-                <v-row dense>
-                    <v-col
-                        cols="12"
-                        md="6"
-                        sm="6"
-                        v-for="(d) in newProduct"
+            <v-card
+                title="Novo Produto"
+            >
+                <v-card-text>
+                    <v-row dense>
+                        <v-col
+                            cols="12"
+                            md="6"
+                            sm="6"
+                            v-for="(d, index) in newProduct"
+                        >
+                            <v-text-field
+                                v-if="d.type === 'text'"
+                                :label="d.label"
+                                v-model="d.value"
+                                :name="d.name"
+                                :error-messages="d.error"
+                                @input="validateField(index)"
+                            ></v-text-field>
+                            <v-select
+                                v-else
+                                :items="d.name === 'depositId' ? props.deposits : d.name === 'categoryId' ? props.categories : props.itemsProducts"
+                                :item-title="d.name === 'depositId' ? 'depositName' : d.name === 'categoryId' ? 'nameCategory' : 'label'"
+                                :item-value="d.name === 'blobImage' ? 'value' : 'id'"
+                                :label="d.label"
+                                v-model="d.value"
+                                :name="d.name"
+                                :error-messages="d.error"
+                                @input="validateField(index)"
+                            ></v-select>
+                        </v-col>
+
+                    </v-row>
+
+                    <small class="text-caption text-medium-emphasis font-weight-bold">*Campos obrigatórios</small>
+                </v-card-text>
+
+                <v-card-actions class="d-flex justify-space-between pb-7">
+                    <v-btn
+                        class="rounded-lg text-uppercase font-weight-black ml-5"
+                        color="#FF6A00"
+                        @click="submitForm"
                     >
-                        <v-text-field
-                            v-if="d.type === 'text'"
-                            :label="d.label"
-                            v-model="d.value"
-                            required
-                        ></v-text-field>
-                        <v-file-input
-                            v-else-if="d.type === 'file'"
-                            accept="image/*"
-                            label="Imagem"
-                            required
-                        ></v-file-input>
-                        <v-select
-                            v-else
-                            :items="['0-17', '18-29', '30-54', '54+']"
-                            :label="d.label"
-                            v-model="d.value"
-                            required
-                        ></v-select>
-                    </v-col>
+                        Cadastrar
+                    </v-btn>
 
-                </v-row>
-
-                <small class="text-caption text-medium-emphasis font-weight-bold">*Campos obrigatórios</small>
-            </v-card-text>
-
-            <v-card-actions class="d-flex justify-space-between pb-7">
-                <v-btn
-                    class="rounded-lg text-uppercase font-weight-black ml-5"
-                    color="#FF6A00"
-                    @click="dialog = false"
-                >
-                    Cadastrar
-                </v-btn>
-
-                <v-btn
-                    class="rounded-lg text-uppercase font-weight-black mr-5"
-                    @click="dialog = false"
-                >
-                    Cancelar
-                </v-btn>
-            </v-card-actions>
-        </v-card>
+                    <v-btn
+                        class="rounded-lg text-uppercase font-weight-black mr-5"
+                        @click="cancel"
+                    >
+                        Cancelar
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </form>
     </v-dialog>
 </template>
 
