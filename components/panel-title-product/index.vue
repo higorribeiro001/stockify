@@ -24,7 +24,7 @@
             <v-img
                 :width="70"
                 :height="70"
-                :src="props.blob_image ? '../public'+props.blob_image : imageEx"
+                :src="props.blob_image ? props.blob_image : imageEx"
             ></v-img>
         </div>
         <v-col class="d-flex flex-column pa-0">

@@ -34,7 +34,7 @@
         </div>   
         <div class="d-flex flex-row ga-2">
             <h3 class="text-subtitle-2 font-weight-medium">Depósito:</h3>
-            <p class="text-subtitle-2 font-weight-regular">{{ props.deposit }}</p>
+            <p class="text-subtitle-2 font-weight-regular">{{ props.deposit.depositName }}</p>
         </div>
         <div class="d-flex flex-row ga-2">
             <h3 class="text-subtitle-2 font-weight-medium">Preço:</h3>

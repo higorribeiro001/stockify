@@ -210,17 +210,17 @@ onMounted(() => {
                 </v-tabs-window-item>
 
                 <v-tabs-window-item value="products">
-                  <div class="d-flex">
+                  <div class="d-flex w-100">
                     <div class="products">
-                        <div class="d-flex flex-lg-row flex-sm-column ga-3 w-100">
+                        <div class="d-flex flex-lg-row flex-sm-column justify-sm-between ga-1 w-100">
                           <NewProduct 
                             :items-products="itemsProducts"
                             :categories="categories"
                             :deposits="deposits"
-                            :load-products="() => {}"
+                            :load-products="listProducts"
                           />
                           <NewCategory 
-                            :load-categories="() => {}"
+                            :load-categories="listCategories"
                           />
                         </div>
                         <v-expansion-panels
@@ -237,7 +237,6 @@ onMounted(() => {
                                 class="pr-lg-5 px-md-2 px-0"
                                 :key="index"
                                 cols="12" 
-                                md="6"
                               >
                                 <v-expansion-panel>
                                   <v-expansion-panel-title>
@@ -319,6 +318,8 @@ onMounted(() => {
     padding-left: 2px;
     padding-right: 2px;
     padding-bottom: 2px;
+    max-width: 600px;
+    width: 600px;
   }
 
   .btn-new {

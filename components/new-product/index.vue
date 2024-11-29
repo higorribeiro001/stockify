@@ -172,7 +172,8 @@ const cancel = () => {
     >
         <template v-slot:activator="{ props: activatorProps }">
             <v-btn 
-                class="btn-new rounded-lg text-capitalize font-weight-black mb-6 w-lg-25 w-md-25 w-sm-100"
+                class="btn-new rounded-lg text-capitalize font-weight-black mb-6"
+                style="width: 160px;"
                 :color="orange"
                 prepend-icon="mdi-plus"
                 v-bind="activatorProps"
