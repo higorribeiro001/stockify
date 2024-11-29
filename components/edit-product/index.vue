@@ -124,7 +124,7 @@ const validateField = (index: number) => {
                 : 'Selecione uma imagem.';
             break;
         case 'price':
-            field.error = String(field.value).includes(',') 
+            field.error = String(field.value) !== ''
                 ? '' 
                 : 'Preço inválido, coloque vírgula.';
             break;
