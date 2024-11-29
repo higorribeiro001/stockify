@@ -1,7 +1,13 @@
-# Stockify
+![Captura de tela 2024-11-29 111634](https://github.com/user-attachments/assets/1c9daf9a-6cb5-40ff-8d88-d8808c6847ab)# Stockify
 
 > Descrição:
 #### Trata-se de um ERP para gerenciamento de estoques de produtos e seus devidos depósitos, contendo um dashboard com grafico de vendas e mapa para localizar os depósitos.
+
+#### Print da tela principal:
+
+#### Print da tela de depósitos:
+
+#### Print da tela produtos:
 
 > Execução:
 #### Considerando que a api já está rodando.
