@@ -41,6 +41,8 @@ export async function putProduct(data: ProductRequestPut) {
     formData.append('description', data.description);
     formData.append('categoryId', String(data.categoryId));
     formData.append('depositId', String(data.depositId));
+    formData.append('isActive', String(data.isActive));
+    formData.append('isPurchased', String(data.isPurchased));
     formData.append('price', String(data.price).replace(',', '.'));
 
     const header = {headers: {'Content-Type': 'multipart/form-data'}};

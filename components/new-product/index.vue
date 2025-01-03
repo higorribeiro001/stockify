@@ -165,6 +165,7 @@ const submitForm = async () => {
 
 const cancel = () => {
     dialog.value = false;
+    fileUpload.value = null;
     for (var f of newProduct.value) {
         f.value = '';
         f.error = '';
