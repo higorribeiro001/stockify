@@ -263,7 +263,7 @@ onMounted(() => {
                                     <v-expansion-panel-title>
                                       <PanelTitleProduct 
                                         :name="product.name"
-                                        :blob_image="product.blobImage"
+                                        :blob_image="'http://' + product.blobImage"
                                         :is_active="product.isActive"
                                         :category_id="product.categoryId"
                                         :nameCategory="product.category?.nameCategory"

@@ -116,7 +116,7 @@ const cancel = () => {
             ref="formRef"
         >
             <v-card
-                title="Novo Depósito"
+                title="Nova Categoria"
             >
                 <v-card-text>
                     <v-row dense>

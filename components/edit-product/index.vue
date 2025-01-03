@@ -28,6 +28,8 @@ const props = defineProps<Product>()
 
 const dialog = ref(false);
 
+const fileUpload = ref<File | null>(null);
+
 const product = ref([
     {
         label: 'Nome*',
@@ -38,9 +40,9 @@ const product = ref([
     },
     {
         label: 'Imagem*',
-        type: 'select',
-        name: 'blobImage',
-        value:  props.blob_image,
+        type: 'file',
+        name: 'file',
+        value: props.blob_image,
         error: ''
     },
     {
@@ -147,18 +149,32 @@ const validateField = (index: number) => {
 const submitForm = async () => {
     let isValid = true;
 
-    isLoading.value = true;
-
     product.value.forEach((field, index) => {
         validateField(index);
+
+        if (fileUpload.value) {
+            const allowedTypes = ['image/png', 'image/jpeg', 'application/jpg'];
+            const MAX_SIZE = 2 * 1024 * 1024;
+
+            if (!allowedTypes.includes(fileUpload.value.type)) {
+                product.value[1].error = 'Tipo de arquivo inválido! Por favor, selecione uma imagem PNG, JPEG ou JPG.';
+            } else if (fileUpload.value.size > MAX_SIZE) {
+            product.value[1].error = 'Arquivo ultrapassa o limite de tamanho.';
+            } else {
+                product.value[1].error = '';
+            }
+        }
+
         if (field.error) isValid = false;
     });
 
     if (isValid) {
+        isLoading.value = true;
         try {
             const response = await putProduct({
                 id: props.id,
                 name: product.value[0].value as string,
+                file: fileUpload.value,
                 blobImage: product.value[1].value as string,
                 description: product.value[2].value as string,
                 categoryId: parseInt(product.value[3].value as string),
@@ -172,7 +188,8 @@ const submitForm = async () => {
                 snackbar.value.active = true;
                 snackbar.value.text = 'Produto editado com sucesso.';
                 props.loadProducts();
-                cancel();
+
+                dialog.value = false;
             } 
         } catch {
             snackbar.value.active = true;
@@ -250,6 +267,14 @@ const cancel = () => {
                                 :error-messages="d.error"
                                 @input="validateField(index)"
                             ></v-text-field>
+                            <v-file-input 
+                                v-else-if="d.type === 'file'" 
+                                :label="d.label"
+                                v-model="fileUpload"
+                                :name="d.name"
+                                :error-messages="d.error"
+                            >
+                            </v-file-input>
                             <v-select
                                 v-else
                                 :items="d.name === 'depositId' ? props.deposits : d.name === 'categoryId' ? props.categories : d.name === 'blobImage' ? props.itemsProducts : itemsActive"

@@ -1,9 +1,21 @@
 import axios from "axios"
 
 export async function setProduct(data: ProductPost) {
-    const body = data
+    const formData = new FormData();
 
-    return await axios.post(import.meta.env.VITE_URL_API + '/api/product/v1', body);
+    if(data.file) {
+        formData.append('file', data.file);
+    }
+
+    formData.append('productName', data.name);
+    formData.append('description', data.description);
+    formData.append('categoryId', String(data.categoryId));
+    formData.append('depositId', String(data.depositId));
+    formData.append('price', String(data.price).replace(',', '.'));
+
+    const header = {headers: {'Content-Type': 'multipart/form-data'}};
+
+    return await axios.post(import.meta.env.VITE_URL_API + '/api/product/v1', formData, header);
 }
 
 export async function getProducts() {
@@ -16,9 +28,24 @@ export async function getProducts() {
 }
 
 export async function putProduct(data: ProductRequestPut) {
-    const body = data
+    const formData = new FormData();
 
-    return await axios.put(import.meta.env.VITE_URL_API + '/api/product/v1', body);
+    if(data.file) {
+        formData.append('file', data.file);
+    } else {
+        formData.append('blobImage', data.blobImage);
+    }
+
+    formData.append('id', String(data.id));
+    formData.append('productName', data.name);
+    formData.append('description', data.description);
+    formData.append('categoryId', String(data.categoryId));
+    formData.append('depositId', String(data.depositId));
+    formData.append('price', String(data.price).replace(',', '.'));
+
+    const header = {headers: {'Content-Type': 'multipart/form-data'}};
+
+    return await axios.put(import.meta.env.VITE_URL_API + '/api/product/v1', formData, header);
 }
 
 export async function deleteProduct(id: number) {

@@ -135,14 +135,13 @@ const validateField = (index: number) => {
 const submitForm = async () => {
     let isValid = true;
 
-    isLoading.value = true;
-
     newDeposit.value.forEach((field, index) => {
         validateField(index);
         if (field.error) isValid = false;
     });
 
     if (isValid) {
+        isLoading.value = true;
         try {
             const response = await setAddress({
                 cep: newDeposit.value[5].value,

@@ -71,6 +71,7 @@ interface DepositEdit {
 
 interface ProductPost {
     name: string;
+    file: File | null;
     blobImage: string;
     description: string;
     categoryId: number;
@@ -100,6 +101,7 @@ interface Product {
 interface ProductRequestPut {
     id: number;
     name: string;
+    file: File | null;
     blobImage: string;
     description: string;
     categoryId: number;

@@ -8,13 +8,23 @@ interface NewProduct {
     loadProducts: () => void;
 }
 
+interface BodyRequest {
+    label: string;
+    type: string;
+    name: string;
+    value: string;
+    error: string;
+}
+
 const props = defineProps<NewProduct>();
 
 const dialog = ref(false);
 
 const orange = '#FF6A00';
 
-const newProduct = ref([
+const fileUpload = ref<File | null>(null);
+
+const newProduct = ref<BodyRequest[]>([
     {
         label: 'Nome*',
         type: 'text',
@@ -24,8 +34,8 @@ const newProduct = ref([
     },
     {
         label: 'Imagem*',
-        type: 'select',
-        name: 'blobImage',
+        type: 'file',
+        name: 'file',
         value: '',
         error: ''
     },
@@ -70,20 +80,20 @@ const validateField = (index: number) => {
     const field = newProduct.value[index];
     switch (field.name) {
         case 'name':
-            field.error = field.value.length >= 2 ? '' : 'Nome deve ter pelo menos 2 caracteres.';
+            field.error = field.value!.length >= 2 ? '' : 'Nome deve ter pelo menos 2 caracteres.';
             break;
         case 'description':
-            field.error = field.value.length >= 3 && field.value.length <= 255 
+            field.error = field.value!.length >= 3 && field.value!.length <= 255 
                 ? '' 
                 : 'Descrição deve ter entre 3 e 255 caracteres.';
             break;
-        case 'blobImage':
-            field.error = field.value !== ''
+        case 'file':
+            field.error = fileUpload.value !== null
                 ? '' 
                 : 'Selecione uma imagem.';
             break;
         case 'price':
-            field.error = field.value.includes(',') 
+            field.error = field.value!.includes(',') 
                 ? '' 
                 : 'Preço inválido, coloque vírgula.';
             break;
@@ -106,18 +116,32 @@ const validateField = (index: number) => {
 const submitForm = async () => {
     let isValid = true;
 
-    isLoading.value = true;
-
     newProduct.value.forEach((field, index) => {
         validateField(index);
-        if (field.error) isValid = false;
+        
+        const allowedTypes = ['image/png', 'image/jpeg', 'application/jpg'];
+        const MAX_SIZE = 2 * 1024 * 1024;
+
+        if (!fileUpload.value) {
+            newProduct.value[1].error = 'Você precisa selecionar um arquivo.';
+        } else if (!allowedTypes.includes(fileUpload.value.type)) {
+            newProduct.value[1].error = 'Tipo de arquivo inválido! Por favor, selecione uma imagem PNG, JPEG ou JPG.';
+        } else if (fileUpload.value.size > MAX_SIZE) {
+          newProduct.value[1].error = 'Arquivo ultrapassa o limite de tamanho.';
+        } else {
+            newProduct.value[1].error = '';
+        }
+
+        if (field.error && !fileUpload.value) isValid = false;
     });
 
     if (isValid) {
+        isLoading.value = true;
         try {
             const response = await setProduct({
                 name: newProduct.value[0].value,
                 blobImage: newProduct.value[1].value,
+                file: fileUpload.value,
                 description: newProduct.value[2].value,
                 categoryId: parseInt(newProduct.value[3].value),
                 depositId: parseInt(newProduct.value[4].value),
@@ -206,6 +230,14 @@ const cancel = () => {
                                 :error-messages="d.error"
                                 @input="validateField(index)"
                             ></v-text-field>
+                            <v-file-input 
+                                v-else-if="d.type === 'file'" 
+                                :label="d.label"
+                                v-model="fileUpload"
+                                :name="d.name"
+                                :error-messages="d.error"
+                            >
+                            </v-file-input>
                             <v-select
                                 v-else
                                 :items="d.name === 'depositId' ? props.deposits : d.name === 'categoryId' ? props.categories : props.itemsProducts"
